@@ -5,8 +5,10 @@ import {
   TableForeignKey,
 } from 'typeorm';
 
-export class CreateProductTable1663729186748 implements MigrationInterface {
-  private tableName = 'products';
+export class CreateProductComplianceTable1663752352234
+  implements MigrationInterface
+{
+  private tableName = 'product_compliance';
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
@@ -20,31 +22,20 @@ export class CreateProductTable1663729186748 implements MigrationInterface {
             generationStrategy: 'increment',
           },
           {
-            name: 'product_sub_category_id',
+            name: 'product_id',
             type: 'int',
             isNullable: false,
           },
           {
-            name: 'name',
+            name: 'compliance_body',
             type: 'varchar',
             length: '255',
             isNullable: false,
           },
           {
-            name: 'product_code',
-            type: 'varchar',
-            length: '100',
-            isNullable: false,
-          },
-          {
             name: 'description',
             type: 'text',
-            isNullable: true,
-          },
-          {
-            name: 'product_composition',
-            type: 'text',
-            isNullable: true,
+            isNullable: false,
           },
           {
             name: 'created_at',
@@ -60,25 +51,15 @@ export class CreateProductTable1663729186748 implements MigrationInterface {
       }),
     );
 
-    await queryRunner.createForeignKey(
+    await queryRunner.dropForeignKey(
       this.tableName,
       new TableForeignKey({
-        columnNames: ['product_sub_category_id'],
+        columnNames: ['product_id'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'product_sub_categories',
+        referencedTableName: 'products',
       }),
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    const table = await queryRunner.getTable(this.tableName);
-    const productSubCategoryForeignKey = table.foreignKeys.find(
-      (fk) => fk.columnNames.indexOf('product_sub_category_id') !== -1,
-    );
-    await queryRunner.dropForeignKey(
-      this.tableName,
-      productSubCategoryForeignKey,
-    );
-    await queryRunner.dropTable(this.tableName);
-  }
+  public async down(queryRunner: QueryRunner): Promise<void> {}
 }

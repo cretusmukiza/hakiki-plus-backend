@@ -5,8 +5,10 @@ import {
   TableForeignKey,
 } from 'typeorm';
 
-export class CreateProductTable1663729186748 implements MigrationInterface {
-  private tableName = 'products';
+export class CreateProductQRScansTable1663736604888
+  implements MigrationInterface
+{
+  public tableName = 'product_qr_scans';
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
@@ -20,30 +22,33 @@ export class CreateProductTable1663729186748 implements MigrationInterface {
             generationStrategy: 'increment',
           },
           {
-            name: 'product_sub_category_id',
+            name: 'user_id',
             type: 'int',
             isNullable: false,
           },
           {
-            name: 'name',
-            type: 'varchar',
-            length: '255',
+            name: 'product_lot_id',
+            type: 'int',
             isNullable: false,
           },
           {
-            name: 'product_code',
+            name: 'latitude',
+            type: 'decimal',
+            precision: 10,
+            scale: 6,
+            isNullable: false,
+          },
+          {
+            name: 'longitude',
+            type: 'decimal',
+            precision: 10,
+            scale: 6,
+            isNullable: false,
+          },
+          {
+            name: 'device',
             type: 'varchar',
             length: '100',
-            isNullable: false,
-          },
-          {
-            name: 'description',
-            type: 'text',
-            isNullable: true,
-          },
-          {
-            name: 'product_composition',
-            type: 'text',
             isNullable: true,
           },
           {
@@ -63,22 +68,32 @@ export class CreateProductTable1663729186748 implements MigrationInterface {
     await queryRunner.createForeignKey(
       this.tableName,
       new TableForeignKey({
-        columnNames: ['product_sub_category_id'],
+        columnNames: ['user_id'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'product_sub_categories',
+        referencedTableName: 'users',
+      }),
+    );
+
+    await queryRunner.createForeignKey(
+      this.tableName,
+      new TableForeignKey({
+        columnNames: ['product_lot_id'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'product_lots',
       }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const table = await queryRunner.getTable(this.tableName);
-    const productSubCategoryForeignKey = table.foreignKeys.find(
-      (fk) => fk.columnNames.indexOf('product_sub_category_id') !== -1,
+    const productLotForeignKey = table.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('product_lot_id') !== -1,
     );
-    await queryRunner.dropForeignKey(
-      this.tableName,
-      productSubCategoryForeignKey,
+    const userIdForeignKey = table.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('user_id') !== -1,
     );
+    await queryRunner.dropForeignKey(this.tableName, productLotForeignKey);
+    await queryRunner.dropForeignKey(this.tableName, userIdForeignKey);
     await queryRunner.dropTable(this.tableName);
   }
 }
